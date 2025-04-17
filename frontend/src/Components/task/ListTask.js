@@ -2,7 +2,7 @@ import React from "react";
 import { Typography } from "@mui/material";
 import CardTask from "./CardTask";
 import ApiServices from "../../Services/ApiServices";
-import { groupTasksByDate } from "../../utils/taskUtils";
+import { groupTasksByDate } from "../../Utils/TaskUtils";
 
 export default function ListTask() {
   const { tasks } = ApiServices();
