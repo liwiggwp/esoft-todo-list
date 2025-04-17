@@ -7,28 +7,29 @@ export default function CardTask({ task }) {
         <Typography
           variant="h6"
           color={
-            task.status === "выполнена"
+            task.status === "Выполнена"
               ? "green"
               : new Date(task.end_date) < new Date()
               ? "red"
               : "grey"
           }
-          t
         >
           {task.title}
           <Chip label={task.priority} size="small" />
         </Typography>
         <Grid container spacing={1} alignItems="center">
-          <Grid item>
-            <Typography variant="body2">До: {task.end_date}</Typography>
+          <Grid>
+            <Typography variant="body2" component="span">
+              До: {task.end_date}
+            </Typography>
           </Grid>
-          <Grid item>
-            <Typography variant="body2">
+          <Grid>
+            <Typography variant="body2" component="span">
               Ответственный: {task.responsible}
             </Typography>
           </Grid>
-          <Grid item>
-            <Typography variant="body2">
+          <Grid>
+            <Typography variant="body2" component="span">
               Статус: <Chip label={task.status} size="small" />
             </Typography>
           </Grid>
