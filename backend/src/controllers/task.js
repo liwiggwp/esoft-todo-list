@@ -83,10 +83,9 @@ const updateTask = async (req, res) => {
     end_date,
     priority_id,
     status_id,
-    author_id,
     responsible_id,
   } = req.body;
-  const userId = req.user.userId;
+  const author_id = req.user.userId; 
 
   try {
     const [task] = await connection.query(
@@ -96,19 +95,18 @@ const updateTask = async (req, res) => {
     if (task.length === 0) {
       return res.status(404).json({ message: "Задача не найдена" });
     }
-    if (task[0].author_id !== userId) {
+    if (task[0].author_id !== author_id) {
       return res.json({ message: "Вы не можете обновлять эту задачу" });
     }
 
     const [rows] = await connection.query(
-      "UPDATE tasks SET title = ?, description = ?, end_date = ?, priority_id = ?, status_id = ?, author_id = ?, responsible_id = ? WHERE id = ?",
+      "UPDATE tasks SET title = ?, description = ?, end_date = ?, priority_id = ?, status_id = ?, responsible_id = ?, updated_at = NOW() WHERE id = ?",
       [
         title,
         description,
         end_date,
         priority_id,
         status_id,
-        author_id,
         responsible_id,
         req.params.id,
       ]
