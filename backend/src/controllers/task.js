@@ -53,7 +53,7 @@ const createTask = async (req, res) => {
     responsible_id,
   } = req.body;
 
-  const author_id = req.user.userId; 
+  const author_id = req.user.userId;
 
   try {
     const [rows] = await connection.query(
@@ -85,29 +85,68 @@ const updateTask = async (req, res) => {
     status_id,
     responsible_id,
   } = req.body;
-  const author_id = req.user.userId; 
+
+  const author_id = req.user.userId;
 
   try {
     const [task] = await connection.query(
       "SELECT author_id FROM tasks WHERE id = ?",
       [req.params.id]
     );
+
     if (task.length === 0) {
       return res.status(404).json({ message: "Задача не найдена" });
     }
+
     if (task[0].author_id !== author_id) {
-      return res.json({ message: "Вы не можете обновлять эту задачу" });
+      const [subordinate] = await connection.query(
+        "SELECT 1 FROM users WHERE id = ? AND manager_id = ?",
+        [author_id, task[0].author_id]
+      );
+
+      if (subordinate.length === 0) {
+        return res.json({ message: "Вы не можете обновлять эту задачу" });
+      }
+
+      if (status_id === undefined) {
+        return res.json({
+          message: "Вы можете изменять только статус задачи",
+        });
+      }
+
+      await connection.query(
+        "UPDATE tasks SET status_id = ?, updated_at = NOW() WHERE id = ?",
+        [status_id, req.params.id]
+      );
+
+      return res.json({ message: "Статус задачи обновлён" });
     }
 
-    const [rows] = await connection.query(
-      "UPDATE tasks SET title = ?, description = ?, end_date = ?, priority_id = ?, status_id = ?, responsible_id = ?, updated_at = NOW() WHERE id = ?",
+    const [currentTask] = await connection.query(
+      "SELECT title, description, end_date, priority_id, status_id, responsible_id FROM tasks WHERE id = ?",
+      [req.params.id]
+    );
+
+    const updatedTitle = title ?? currentTask[0].title;
+    const updatedDescription = description ?? currentTask[0].description;
+    const updatedEndDate = end_date ?? currentTask[0].end_date;
+    const updatedPriorityId = priority_id ?? currentTask[0].priority_id;
+    const updatedStatusId = status_id ?? currentTask[0].status_id;
+    const updatedResponsibleId =
+      responsible_id ?? currentTask[0].responsible_id;
+
+    await connection.query(
+      `UPDATE tasks 
+       SET title = ?, description = ?, end_date = ?, priority_id = ?, 
+           status_id = ?, responsible_id = ?, updated_at = NOW() 
+       WHERE id = ?`,
       [
-        title,
-        description,
-        end_date,
-        priority_id,
-        status_id,
-        responsible_id,
+        updatedTitle,
+        updatedDescription,
+        updatedEndDate,
+        updatedPriorityId,
+        updatedStatusId,
+        updatedResponsibleId,
         req.params.id,
       ]
     );
