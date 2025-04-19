@@ -1,12 +1,12 @@
 const express = require("express");
-const tasks = require("./src/task/task");
-const { router: auth } = require("./src/auth/auth");
+const taskRoutes = require("./src/routes/tasks");
+const authRoutes = require("./src/routes/auth");
 
 const app = express();
 
 app.use(express.json());
-app.use("/tasks", tasks);
-app.use("/auth", auth);
+app.use("/tasks", taskRoutes);
+app.use("/auth", authRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () => {

@@ -1,9 +1,6 @@
-const express = require("express");
 const connection = require("../config/db");
-const router = express.Router();
-const { authenticate } = require("../auth/auth");
 
-router.get("/", authenticate, async (req, res) => {
+const getTasks = async (req, res) => {
   try {
     const [rows] = await connection.query(`
           SELECT 
@@ -29,9 +26,9 @@ router.get("/", authenticate, async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Ошибка сервера" });
   }
-});
+};
 
-router.get("/:id", authenticate, async (req, res) => {
+const getTaskById = async (req, res) => {
   try {
     const [rows] = await connection.query("SELECT * FROM tasks WHERE id = ?", [
       req.params.id,
@@ -44,6 +41,6 @@ router.get("/:id", authenticate, async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Ошибка сервера" });
   }
-});
+};
 
-module.exports = router;
+module.exports = { getTasks, getTaskById };

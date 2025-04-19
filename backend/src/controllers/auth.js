@@ -1,18 +1,15 @@
-const express = require("express");
-const bcrypt = require("bcrypt");
 const connection = require("../config/db");
-const router = express.Router();
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const secretKey = "secret-key";
 
 const authenticate = (req, res, next) => {
   const token = req.headers["authorization"];
-  //   console.log(token.split(" ")[1]);
   if (!token) {
     return res.json({ message: "Доступ запрещен" });
   }
- 
+
   try {
     const decoded = jwt.verify(token.split(" ")[1], secretKey);
     req.user = decoded;
@@ -22,7 +19,7 @@ const authenticate = (req, res, next) => {
   }
 };
 
-router.post("/register", async (req, res) => {
+const register = async (req, res) => {
   try {
     const { username, password, first_name, last_name } = req.body;
 
@@ -40,9 +37,9 @@ router.post("/register", async (req, res) => {
     console.error(error);
     res.json({ message: "Ошибка регистрации. Попробуйте позже." });
   }
-});
+};
 
-router.post("/login", async (req, res) => {
+const login = async (req, res) => {
   try {
     const { username, password } = req.body;
 
@@ -79,10 +76,10 @@ router.post("/login", async (req, res) => {
       },
       token: token,
     });
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     res.json({ message: "Ошибка сервера" });
   }
-});
+};
 
-module.exports = { router, authenticate };
+module.exports = { register, login, authenticate };
