@@ -2,6 +2,25 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const connection = require("../config/db");
 const router = express.Router();
+const jwt = require("jsonwebtoken");
+
+const secretKey = "secret-key";
+
+const authenticate = (req, res, next) => {
+  const token = req.headers["authorization"];
+  //   console.log(token.split(" ")[1]);
+  if (!token) {
+    return res.json({ message: "Доступ запрещен" });
+  }
+ 
+  try {
+    const decoded = jwt.verify(token.split(" ")[1], secretKey);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.json({ message: "Недействительный токен" });
+  }
+};
 
 router.post("/register", async (req, res) => {
   try {
@@ -47,6 +66,10 @@ router.post("/login", async (req, res) => {
       return res.json({ message: "Неправильный пароль" });
     }
 
+    const token = jwt.sign({ userId: user.id }, secretKey, {
+      expiresIn: "1h",
+    });
+
     res.json({
       user: {
         id: user.id,
@@ -54,6 +77,7 @@ router.post("/login", async (req, res) => {
         first_name: user.first_name,
         last_name: user.last_name,
       },
+      token: token,
     });
   } catch (err) {
     console.error(err);
@@ -61,4 +85,4 @@ router.post("/login", async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = { router, authenticate };

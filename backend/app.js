@@ -1,6 +1,6 @@
 const express = require("express");
 const tasks = require("./src/task/task");
-const auth = require("./src/auth/auth");
+const { router: auth } = require("./src/auth/auth");
 
 const app = express();
 

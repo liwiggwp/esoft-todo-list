@@ -1,8 +1,9 @@
 const express = require("express");
 const connection = require("../config/db");
 const router = express.Router();
+const { authenticate } = require("../auth/auth");
 
-router.get("/", async (req, res) => {
+router.get("/", authenticate, async (req, res) => {
   try {
     const [rows] = await connection.query(`
           SELECT 
@@ -30,7 +31,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticate, async (req, res) => {
   try {
     const [rows] = await connection.query("SELECT * FROM tasks WHERE id = ?", [
       req.params.id,
