@@ -43,4 +43,109 @@ const getTaskById = async (req, res) => {
   }
 };
 
-module.exports = { getTasks, getTaskById };
+const createTask = async (req, res) => {
+  const {
+    title,
+    description,
+    end_date,
+    priority_id,
+    status_id,
+    responsible_id,
+  } = req.body;
+
+  const author_id = req.user.userId; 
+
+  try {
+    const [rows] = await connection.query(
+      "INSERT INTO tasks (title, description, end_date, priority_id, status_id, author_id, responsible_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [
+        title,
+        description,
+        end_date,
+        priority_id,
+        status_id,
+        author_id,
+        responsible_id,
+      ]
+    );
+
+    res.json({ id: rows.insertId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+};
+
+const updateTask = async (req, res) => {
+  const {
+    title,
+    description,
+    end_date,
+    priority_id,
+    status_id,
+    author_id,
+    responsible_id,
+  } = req.body;
+  const userId = req.user.userId;
+
+  try {
+    const [task] = await connection.query(
+      "SELECT author_id FROM tasks WHERE id = ?",
+      [req.params.id]
+    );
+    if (task.length === 0) {
+      return res.status(404).json({ message: "Задача не найдена" });
+    }
+    if (task[0].author_id !== userId) {
+      return res.json({ message: "Вы не можете обновлять эту задачу" });
+    }
+
+    const [rows] = await connection.query(
+      "UPDATE tasks SET title = ?, description = ?, end_date = ?, priority_id = ?, status_id = ?, author_id = ?, responsible_id = ? WHERE id = ?",
+      [
+        title,
+        description,
+        end_date,
+        priority_id,
+        status_id,
+        author_id,
+        responsible_id,
+        req.params.id,
+      ]
+    );
+
+    res.json({ message: "Задача обновлена" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+};
+
+const deleteTask = async (req, res) => {
+  const userId = req.user.userId;
+  try {
+    const [task] = await connection.query(
+      "SELECT author_id FROM tasks WHERE id = ?",
+      [req.params.id]
+    );
+    console.log(task[0].author_id);
+    if (task.length === 0) {
+      return res.status(404).json({ message: "Задача не найдена" });
+    }
+    if (task[0].author_id !== userId) {
+      return res
+        .status(403)
+        .json({ message: "Вы не можете удалять эту задачу" });
+    }
+
+    const [rows] = await connection.query("DELETE FROM tasks WHERE id = ?", [
+      req.params.id,
+    ]);
+    res.json({ message: "Задача удалена" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+};
+
+module.exports = { getTasks, getTaskById, createTask, updateTask, deleteTask };
