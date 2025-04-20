@@ -1,25 +1,30 @@
 const connection = require("../config/db");
 
 const getTasks = async (req, res) => {
+  const userId = req.user.userId;
+
   try {
-    const [rows] = await connection.query(`
-          SELECT 
-            t.id,
-            t.title,
-            t.description,
-            t.end_date,
-            t.created_at,
-            t.updated_at,
-            p.name AS priority,
-            s.name AS status,
-            CONCAT(a.first_name, ' ', a.last_name) AS author,
-            CONCAT(r.first_name, ' ', r.last_name) AS responsible
-          FROM tasks t
-          LEFT JOIN priorities p ON t.priority_id = p.id
-          LEFT JOIN statuses s ON t.status_id = s.id
-          LEFT JOIN users a ON t.author_id = a.id
-          LEFT JOIN users r ON t.responsible_id = r.id
-        `);
+    const [rows] = await connection.query(
+      `
+      SELECT 
+        t.id,
+        t.title,
+        t.description,
+        t.end_date,
+        t.created_at,
+        t.updated_at,
+        p.name AS priority,
+        s.name AS status,
+        CONCAT(a.first_name, ' ', a.last_name) AS author,
+        CONCAT(r.first_name, ' ', r.last_name) AS responsible
+      FROM tasks t
+      LEFT JOIN priorities p ON t.priority_id = p.id
+      LEFT JOIN statuses s ON t.status_id = s.id
+      LEFT JOIN users a ON t.author_id = a.id
+      LEFT JOIN users r ON t.responsible_id = r.id
+      WHERE t.author_id = ? OR t.responsible_id = ?`,
+      [userId, userId]
+    );
 
     res.json(rows);
   } catch (err) {
