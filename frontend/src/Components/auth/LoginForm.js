@@ -8,15 +8,28 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import Api from "../../Services/ApiServices";
 
 export default function LoginForm() {
   const navigate = useNavigate();
+  const { login } = Api();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    localStorage.setItem("token", "token");
+    setError(null);
+    try {
+      const response = await login(username, password);
+      if (response.status === 200) {
+        navigate("/");
+      } else {
+        setError(response.data.message);
+      }
+    } catch (err) {
+      setError("Неверное имя пользователя или пароль");
+    }
   };
 
   return (
@@ -47,6 +60,11 @@ export default function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
           />
+          {error && (
+            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
           <Button
             fullWidth
             variant="contained"

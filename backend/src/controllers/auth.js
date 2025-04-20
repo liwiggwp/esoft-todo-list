@@ -44,7 +44,7 @@ const login = async (req, res) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res.json({ message: "Введите логин и пароль" });
+      return res.status(400).json({ message: "Введите логин и пароль" });
     }
 
     const [rows] = await connection.query(
@@ -53,21 +53,21 @@ const login = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.json({ message: "Пользователь не найден" });
+      return res.status(404).json({ message: "Пользователь не найден" });
     }
 
     const user = rows[0];
 
     const checkPassword = await bcrypt.compare(password, user.password);
     if (!checkPassword) {
-      return res.json({ message: "Неправильный пароль" });
+      return res.status(401).json({ message: "Неправильный пароль" });
     }
 
     const token = jwt.sign({ userId: user.id }, secretKey, {
       expiresIn: "1h",
     });
 
-    res.json({
+    res.status(200).json({
       user: {
         id: user.id,
         username: user.username,
@@ -78,7 +78,7 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.json({ message: "Ошибка сервера" });
+    res.status(500).json({ message: "Ошибка сервера" });
   }
 };
 
