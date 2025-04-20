@@ -2,8 +2,73 @@ const connection = require("../config/db");
 
 const getTasks = async (req, res) => {
   const userId = req.user.userId;
+  const groupBy = req.query.groupBy;
 
   try {
+    if (groupBy === "responsible") {
+      const [rows] = await connection.query(
+        `
+        SELECT 
+          t.id,
+          t.title,
+          t.description,
+          t.end_date,
+          t.created_at,
+          t.updated_at,
+          p.name AS priority,
+          s.name AS status,
+          CONCAT(a.first_name, ' ', a.last_name) AS author,
+          CONCAT(r.first_name, ' ', r.last_name) AS responsible,
+          t.responsible_id
+        FROM tasks t
+        LEFT JOIN priorities p ON t.priority_id = p.id
+        LEFT JOIN statuses s ON t.status_id = s.id
+        LEFT JOIN users a ON t.author_id = a.id
+        LEFT JOIN users r ON t.responsible_id = r.id
+        WHERE (r.manager_id = ? OR t.responsible_id IS NULL)
+        ORDER BY t.updated_at DESC
+        `,
+        [userId]
+      );
+      
+      const grouped = rows.reduce((acc, task) => {
+        const name = task.responsible || "Не назначен";
+        if (!acc[name]) acc[name] = [];
+        acc[name].push(task);
+        return acc;
+      }, {});
+
+      return res.json(grouped);
+    }
+
+    if (groupBy === "date") {
+      const [rows] = await connection.query(
+        `
+        SELECT 
+          t.id,
+          t.title,
+          t.description,
+          t.end_date,
+          t.created_at,
+          t.updated_at,
+          p.name AS priority,
+          s.name AS status,
+          CONCAT(a.first_name, ' ', a.last_name) AS author,
+          CONCAT(r.first_name, ' ', r.last_name) AS responsible
+        FROM tasks t
+        LEFT JOIN priorities p ON t.priority_id = p.id
+        LEFT JOIN statuses s ON t.status_id = s.id
+        LEFT JOIN users a ON t.author_id = a.id
+        LEFT JOIN users r ON t.responsible_id = r.id
+        WHERE t.author_id = ? OR t.responsible_id = ?
+        ORDER BY t.updated_at DESC
+        `,
+        [userId, userId]
+      );
+
+      return res.json(rows);
+    }
+
     const [rows] = await connection.query(
       `
       SELECT 
@@ -22,16 +87,19 @@ const getTasks = async (req, res) => {
       LEFT JOIN statuses s ON t.status_id = s.id
       LEFT JOIN users a ON t.author_id = a.id
       LEFT JOIN users r ON t.responsible_id = r.id
-      WHERE t.author_id = ? OR t.responsible_id = ?`,
+      WHERE t.author_id = ? OR t.responsible_id = ?
+      ORDER BY t.updated_at DESC
+      `,
       [userId, userId]
     );
 
-    res.json(rows);
+    return res.json(rows);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };
+
 
 const getTaskById = async (req, res) => {
   try {
@@ -190,4 +258,10 @@ const deleteTask = async (req, res) => {
   }
 };
 
-module.exports = { getTasks, getTaskById, createTask, updateTask, deleteTask };
+module.exports = {
+  getTasks,
+  getTaskById,
+  createTask,
+  updateTask,
+  deleteTask,
+};
