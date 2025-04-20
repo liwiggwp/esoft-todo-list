@@ -3,10 +3,16 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function ApiServices() {
-   const navigate = useNavigate();
+  const navigate = useNavigate();
   const { get, post, put, del } = httpService();
   const [tasks, setTasks] = useState([]);
   const [task, setTask] = useState(null);
+
+  const handleUnauthorized = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/auth/login");
+  };
 
   const getToken = () => {
     return localStorage.getItem("token");
@@ -33,7 +39,10 @@ export default function ApiServices() {
       const response = await get(`/tasks`);
       setTasks(response.data);
     } catch (error) {
-      console.log(error);
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        handleUnauthorized();
+      }
+      throw error;
     }
   };
 
@@ -60,7 +69,12 @@ export default function ApiServices() {
 
   const register = async (username, password, first_name, last_name) => {
     try {
-      const response = await post("/auth/register", { username, password, first_name, last_name });
+      const response = await post("/auth/register", {
+        username,
+        password,
+        first_name,
+        last_name,
+      });
       return response;
     } catch (error) {
       console.error(error);
@@ -71,7 +85,7 @@ export default function ApiServices() {
   const logout = () => {
     localStorage.clear();
     navigate("/auth/login");
-};
+  };
 
   useEffect(() => {
     getTasks();

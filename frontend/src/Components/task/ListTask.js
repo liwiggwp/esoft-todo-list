@@ -13,23 +13,35 @@ export default function ListTask() {
       <Typography variant="h6" sx={{ mt: 2 }}>
         Сегодня
       </Typography>
-      {todayTasks.map((task) => (
-        <CardTask key={task.id} task={task} />
-      ))}
+      {todayTasks.length > 0 ? (
+        todayTasks.map((task) => <CardTask key={task.id} task={task} />)
+      ) : (
+        <Typography variant="body2" color="textSecondary">
+          Нет задач на сегодня
+        </Typography>
+      )}
 
       <Typography variant="h6" sx={{ mt: 2 }}>
         На этой неделе
       </Typography>
-      {weekTasks.map((task) => (
-        <CardTask key={task.id} task={task} />
-      ))}
+      {weekTasks.length > 0 ? (
+        weekTasks.map((task) => <CardTask key={task.id} task={task} />)
+      ) : (
+        <Typography variant="body2" color="textSecondary">
+          Нет задач на этой неделе
+        </Typography>
+      )}
 
       <Typography variant="h6" sx={{ mt: 2 }}>
         Позже
       </Typography>
-      {futureTasks.map((task) => (
-        <CardTask key={task.id} task={task} />
-      ))}
+      {futureTasks.length > 0 ? (
+        futureTasks.map((task) => <CardTask key={task.id} task={task} />)
+      ) : (
+        <Typography variant="body2" color="textSecondary">
+          Нет задач на будущее
+        </Typography>
+      )}
     </>
   );
 }
