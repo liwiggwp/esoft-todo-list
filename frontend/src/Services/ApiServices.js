@@ -7,6 +7,9 @@ export default function ApiServices() {
   const { get, post, put, del } = httpService();
   const [tasks, setTasks] = useState([]);
   const [task, setTask] = useState(null);
+  const [statuses, setStatuses] = useState([]);
+  const [priorities, setPriorities] = useState([]);
+  const [responsible, setResponsible] = useState([]);
 
   const handleUnauthorized = () => {
     localStorage.removeItem("token");
@@ -34,10 +37,12 @@ export default function ApiServices() {
     setUser(user);
   };
 
-  const getTasks = async () => {
+  const getTasks = async (groupBy = "") => {
     try {
-      const response = await get(`/tasks`);
+      const queryParam = groupBy ? `?groupBy=${groupBy}` : "";
+      const response = await get(`/tasks${queryParam}`);
       setTasks(response.data);
+      return response.data;
     } catch (error) {
       if (error.response?.status === 401 || error.response?.status === 403) {
         handleUnauthorized();
@@ -55,6 +60,65 @@ export default function ApiServices() {
     }
   };
 
+  const createTask = async (data) => {
+    try {
+      const response = await post("/tasks", data);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const updateTask = async (id, data) => {
+    try {
+      const response = await put(`/tasks/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const deleteTask = async (id) => {
+    try {
+      const response = await del(`/tasks/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const getStatuses = async () => {
+    try {
+      const response = await get("/statuses");
+      setStatuses(response.data);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const getPriorities = async () => {
+    try {
+      const response = await get("/priorities");
+      setPriorities(response.data);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const getSubordinatesUsers = async () => {
+    try {
+      const response = await get("/user/subordinates-users");
+      setResponsible(response.data);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
   const login = async (username, password) => {
     try {
       const response = await post("/auth/login", { username, password });
@@ -89,6 +153,9 @@ export default function ApiServices() {
 
   useEffect(() => {
     getTasks();
+    getStatuses();
+    getPriorities();
+    getSubordinatesUsers();
   }, []);
 
   return {
@@ -98,6 +165,12 @@ export default function ApiServices() {
     getToken,
     getTasks,
     getTaskById,
+    createTask,
+    updateTask,
+    deleteTask,
+    statuses,
+    priorities,
+    responsible,
     tasks,
     task,
     login,
