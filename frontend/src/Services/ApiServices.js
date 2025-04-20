@@ -1,7 +1,9 @@
 import httpService from "./HttpServices";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ApiServices() {
+   const navigate = useNavigate();
   const { get, post, put, del } = httpService();
   const [tasks, setTasks] = useState([]);
   const [task, setTask] = useState(null);
@@ -68,8 +70,8 @@ export default function ApiServices() {
 
   const logout = () => {
     localStorage.clear();
-    window.location.reload();
-  };
+    navigate("/auth/login");
+};
 
   useEffect(() => {
     getTasks();
