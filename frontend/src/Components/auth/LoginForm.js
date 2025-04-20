@@ -28,7 +28,7 @@ export default function LoginForm() {
         setError(response.data.message);
       }
     } catch (err) {
-      setError("Неверное имя пользователя или пароль");
+      console.log(err);
     }
   };
 
@@ -43,7 +43,7 @@ export default function LoginForm() {
         <Box mt={2} component="form" onSubmit={handleLogin}>
           <TextField
             fullWidth
-            label="Почта"
+            label="Логин"
             variant="outlined"
             margin="dense"
             value={username}

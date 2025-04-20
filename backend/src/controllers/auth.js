@@ -7,7 +7,7 @@ const secretKey = "secret-key";
 const authenticate = (req, res, next) => {
   const token = req.headers["authorization"];
   if (!token) {
-    return res.json({ message: "Доступ запрещен" });
+    return res.status(403).json({ message: "Доступ запрещен" });
   }
 
   try {
@@ -15,7 +15,7 @@ const authenticate = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    return res.json({ message: "Недействительный токен" });
+    return res.status(401).json({ message: "Недействительный токен" });
   }
 };
 
@@ -24,7 +24,18 @@ const register = async (req, res) => {
     const { username, password, first_name, last_name } = req.body;
 
     if (!username || !password || !first_name || !last_name) {
-      return res.json({ message: "Введите логин, пароль, имя и фамилию" });
+      return res
+        .status(400)
+        .json({ message: "Введите логин, пароль, имя и фамилию" });
+    }
+
+    const [uniqueUser] = await connection.query(
+      "SELECT * FROM users WHERE username = ?",
+      [username]
+    );
+
+    if (uniqueUser.length > 0) {
+      return res.status(404).json({ message: "Логин уже существует" });
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
@@ -32,10 +43,10 @@ const register = async (req, res) => {
       "INSERT INTO users (username, password, first_name, last_name) VALUES (?, ?, ?, ?)",
       [username, hashPassword, first_name, last_name]
     );
-    res.json({ message: "Пользователь зарегистрирован" });
+    res.status(200).json({ message: "Пользователь зарегистрирован" });
   } catch (error) {
     console.error(error);
-    res.json({ message: "Ошибка регистрации. Попробуйте позже." });
+    res.status(500).json({ message: "Ошибка регистрации. Попробуйте позже." });
   }
 };
 

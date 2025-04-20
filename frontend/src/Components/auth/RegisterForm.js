@@ -8,14 +8,30 @@ import {
   Button,
   Typography,
 } from "@mui/material";
+import Api from "../../Services/ApiServices";
 
 export default function RegisterForm() {
   const navigate = useNavigate();
+  const { register } = Api();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
 
   const handleRegister = async (event) => {
     event.preventDefault();
+    setError(null);
+    try {
+      const response = await register(username, password, firstName, lastName);
+      if (response.status === 200) {
+        navigate("/auth/login");
+      } else {
+        setError(response.data.message);
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -29,7 +45,25 @@ export default function RegisterForm() {
         <Box mt={2} component="form" onSubmit={handleRegister}>
           <TextField
             fullWidth
-            label="Почта"
+            label="Имя"
+            variant="outlined"
+            margin="dense"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            autoComplete="firstName"
+          />
+          <TextField
+            fullWidth
+            label="Фамилия"
+            variant="outlined"
+            margin="dense"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            autoComplete="lastName"
+          />
+          <TextField
+            fullWidth
+            label="Логин"
             variant="outlined"
             margin="dense"
             value={username}
@@ -46,6 +80,11 @@ export default function RegisterForm() {
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="new-password"
           />
+          {error && (
+            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
           <Button
             fullWidth
             variant="contained"

@@ -58,9 +58,9 @@ export default function ApiServices() {
     }
   };
 
-  const register = async (username, password) => {
+  const register = async (username, password, first_name, last_name) => {
     try {
-      const response = await post("/auth/register", { username, password });
+      const response = await post("/auth/register", { username, password, first_name, last_name });
       return response;
     } catch (error) {
       console.error(error);
