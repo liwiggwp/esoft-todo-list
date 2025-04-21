@@ -8,18 +8,16 @@ import {
   TextField,
   MenuItem,
 } from "@mui/material";
-
-const priorities = ["Высокий", "Средний", "Низкий"];
-const statuses = ["К выполнению", "Выполняется", "Выполнена", "Отменена"];
-const responsible = ["Анна Иванова", "Петр Петров", "Александр Козлов"];
+import ApiServices from "../../Services/ApiServices";
 
 export default function FormTask({ open, onClose, initialData }) {
+  const { statuses, priorities, responsible } = ApiServices();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     end_date: "",
     priority: "",
-    status: "К выполнению",
+    status: "",
     responsible: "",
     created_at: new Date().toISOString().split("T")[0],
     updated_at: new Date().toISOString().split("T")[0],
@@ -44,7 +42,7 @@ export default function FormTask({ open, onClose, initialData }) {
         description: "",
         end_date: "",
         priority: "",
-        status: "К выполнению",
+        status: "",
         responsible: "",
         created_at: new Date().toISOString().split("T")[0],
         updated_at: new Date().toISOString().split("T")[0],
@@ -123,8 +121,8 @@ export default function FormTask({ open, onClose, initialData }) {
           onChange={handleChange}
         >
           {priorities.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
+            <MenuItem key={option.id} value={option.id}>
+              {option.name}
             </MenuItem>
           ))}
         </TextField>
@@ -138,8 +136,8 @@ export default function FormTask({ open, onClose, initialData }) {
           onChange={handleChange}
         >
           {statuses.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
+            <MenuItem key={option.id} value={option.id}>
+              {option.name}
             </MenuItem>
           ))}
         </TextField>
@@ -153,8 +151,8 @@ export default function FormTask({ open, onClose, initialData }) {
           onChange={handleChange}
         >
           {responsible.map((option) => (
-            <MenuItem key={option} value={option}>
-              {option}
+            <MenuItem key={option.id} value={option.id}>
+              {option.responsible}
             </MenuItem>
           ))}
         </TextField>

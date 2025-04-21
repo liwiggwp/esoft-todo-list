@@ -5,7 +5,12 @@ const getSubordinatesUsers = async (req, res) => {
 
   try {
     const [subordinates] = await connection.query(
-      "SELECT id, first_name, last_name FROM users WHERE manager_id = ?",
+      `
+      SELECT 
+        id, 
+        CONCAT(first_name, ' ', last_name) AS responsible 
+      FROM users 
+      WHERE manager_id = ?`,
       [userId]
     );
 
