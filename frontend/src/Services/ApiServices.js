@@ -37,7 +37,7 @@ export default function ApiServices() {
     setUser(user);
   };
 
-  const getTasks = async (groupBy = "") => {
+  const getTasks = async (groupBy = "date") => {
     try {
       const queryParam = groupBy ? `?groupBy=${groupBy}` : "";
       const response = await get(`/tasks${queryParam}`);
