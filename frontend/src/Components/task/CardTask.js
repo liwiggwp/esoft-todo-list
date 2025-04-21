@@ -41,27 +41,27 @@ export default function CardTask({ task }) {
                 ? "red"
                 : "grey"
             }
-            sx={{ fontWeight: "bold" }}
+            sx={{ fontWeight: "bold", fontSize: "1rem" }}
           >
             {task.title}
           </Typography>
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} sm={4}>
-              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                 До:
               </Typography>
-              <Typography variant="body1">
+              <Typography variant="body2">
                 {formatDate(task.end_date)}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={4}>
-              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                 Ответственный:
               </Typography>
-              <Typography variant="body1">{task.responsible}</Typography>
+              <Typography variant="body2">{task.responsible}</Typography>
             </Grid>
             <Grid item xs={12} sm={4}>
-              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                 Приоритет:
               </Typography>
               <Chip
@@ -71,7 +71,7 @@ export default function CardTask({ task }) {
               />
             </Grid>
             <Grid item xs={12} sm={4}>
-              <Typography variant="body1" sx={{ fontWeight: "bold" }}>
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                 Статус:
               </Typography>
               <Chip
