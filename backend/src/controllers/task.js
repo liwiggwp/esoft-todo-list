@@ -71,9 +71,11 @@ const getTasks = async (req, res) => {
 
 const getTaskById = async (req, res) => {
   try {
-    const [rows] = await connection.query("SELECT * FROM tasks WHERE id = ?", [
-      req.params.id,
-    ]);
+    const [rows] = await connection.query(
+      `
+      SELECT * FROM tasks WHERE id = ?`,
+      [req.params.id]
+    );
     if (rows.length === 0) {
       return res.status(404).json({ message: "Задача не найдена" });
     }
@@ -98,7 +100,8 @@ const createTask = async (req, res) => {
 
   try {
     const [rows] = await connection.query(
-      "INSERT INTO tasks (title, description, end_date, priority_id, status_id, author_id, responsible_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      `
+      INSERT INTO tasks (title, description, end_date, priority_id, status_id, author_id, responsible_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
       [
         title,
         description,
@@ -127,11 +130,12 @@ const updateTask = async (req, res) => {
     responsible_id,
   } = req.body;
 
-  const author_id = req.user.userId;
+  const userId = req.user.userId;
 
   try {
     const [task] = await connection.query(
-      "SELECT author_id FROM tasks WHERE id = ?",
+      `
+      SELECT author_id, responsible_id FROM tasks WHERE id = ?`,
       [req.params.id]
     );
 
@@ -139,18 +143,16 @@ const updateTask = async (req, res) => {
       return res.status(404).json({ message: "Задача не найдена" });
     }
 
-    if (task[0].author_id !== author_id) {
-      const [subordinate] = await connection.query(
-        "SELECT 1 FROM users WHERE id = ? AND manager_id = ?",
-        [author_id, task[0].author_id]
-      );
+    const isAuthor = task[0].author_id === userId;
+    const isResponsible = task[0].responsible_id === userId;
 
-      if (subordinate.length === 0) {
-        return res
-          .status(403)
-          .json({ message: "Вы не можете обновлять эту задачу" });
-      }
+    if (!isAuthor && !isResponsible) {
+      return res
+        .status(403)
+        .json({ message: "Вы не можете обновлять эту задачу" });
+    }
 
+    if (!isAuthor && isResponsible) {
       if (status_id === undefined) {
         return res.status(400).json({
           message: "Вы можете изменять только статус задачи",
@@ -158,7 +160,8 @@ const updateTask = async (req, res) => {
       }
 
       await connection.query(
-        "UPDATE tasks SET status_id = ?, updated_at = NOW() WHERE id = ?",
+        `
+        UPDATE tasks SET status_id = ?, updated_at = NOW() WHERE id = ?`,
         [status_id, req.params.id]
       );
 
@@ -166,7 +169,8 @@ const updateTask = async (req, res) => {
     }
 
     await connection.query(
-      `UPDATE tasks 
+      `
+      UPDATE tasks 
          SET title = ?, description = ?, end_date = ?, priority_id = ?, 
              status_id = ?, responsible_id = ?, updated_at = NOW() 
          WHERE id = ?`,
@@ -187,12 +191,12 @@ const updateTask = async (req, res) => {
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };
-
 const deleteTask = async (req, res) => {
   const userId = req.user.userId;
   try {
     const [task] = await connection.query(
-      "SELECT author_id FROM tasks WHERE id = ?",
+      `
+      SELECT author_id FROM tasks WHERE id = ?`,
       [req.params.id]
     );
     console.log(task[0].author_id);
@@ -205,9 +209,11 @@ const deleteTask = async (req, res) => {
         .json({ message: "Вы не можете удалять эту задачу" });
     }
 
-    const [rows] = await connection.query("DELETE FROM tasks WHERE id = ?", [
-      req.params.id,
-    ]);
+    const [rows] = await connection.query(
+      `
+      DELETE FROM tasks WHERE id = ?`,
+      [req.params.id]
+    );
     res.json({ message: "Задача удалена" });
   } catch (err) {
     console.error(err);

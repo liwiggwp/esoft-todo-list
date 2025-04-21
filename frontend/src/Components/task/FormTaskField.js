@@ -83,6 +83,7 @@ export default function TaskFormFields({
         name="responsible"
         value={formData.responsible}
         onChange={handleChange}
+        disabled={isNotAuthor}
       >
         {responsible.map((option) => (
           <MenuItem key={option.id} value={option.id}>
