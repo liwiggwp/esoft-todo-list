@@ -46,9 +46,7 @@ export default function Home() {
             <Button onClick={(event) => handleTypeGroup(event, "date")}>
               По дате завершения
             </Button>
-            <Button
-              onClick={(event) => handleTypeGroup(event, "responsible")}
-            >
+            <Button onClick={(event) => handleTypeGroup(event, "responsible")}>
               По ответственным
             </Button>
             <Button onClick={(event) => handleTypeGroup(event, "all")}>

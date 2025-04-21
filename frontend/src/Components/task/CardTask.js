@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Card,
@@ -9,12 +9,19 @@ import {
 } from "@mui/material";
 import FormTask from "./FormTask";
 import { priorityColor, statusColor } from "../../Utils/ColorChip";
+import { formatDate } from "../../Utils/DateFormat";
 
 export default function CardTask({ task }) {
   const [isFormOpen, setFormOpen] = useState(false);
+  const [initialFormData, setInitialFormData] = useState(null);
 
-  const handleOpenForm = () => {
+  const handleEdit = () => {
+    const formattedData = {
+      ...task,
+    };
+
     setFormOpen(true);
+    setInitialFormData(formattedData);
   };
 
   const handleCloseForm = () => {
@@ -44,7 +51,7 @@ export default function CardTask({ task }) {
                 До:
               </Typography>
               <Typography variant="body1">
-                {new Date(task.end_date).toISOString().split("T")[0]}
+                {formatDate(task.end_date)}
               </Typography>
             </Grid>
             <Grid item xs={12} sm={4}>
@@ -74,11 +81,7 @@ export default function CardTask({ task }) {
               />
             </Grid>
             <Grid item xs={12}>
-              <Button
-                variant="outlined"
-                color="primary"
-                onClick={handleOpenForm}
-              >
+              <Button variant="outlined" color="primary" onClick={handleEdit}>
                 Редактировать
               </Button>
             </Grid>
@@ -89,7 +92,7 @@ export default function CardTask({ task }) {
         <FormTask
           open={isFormOpen}
           onClose={handleCloseForm}
-          initialData={task}
+          initialData={initialFormData}
         />
       )}
     </>

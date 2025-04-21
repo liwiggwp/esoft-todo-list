@@ -5,13 +5,14 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  TextField,
-  MenuItem,
 } from "@mui/material";
+import FormTaskField from "./FormTaskField";
 import ApiServices from "../../Services/ApiServices";
+import { formatDate } from "../../Utils/DateFormat";
 
 export default function FormTask({ open, onClose, initialData }) {
-  const { statuses, priorities, responsible } = ApiServices();
+  const { createTask, updateTask, statuses, priorities, responsible } =
+    ApiServices();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -19,61 +20,61 @@ export default function FormTask({ open, onClose, initialData }) {
     priority: "",
     status: "",
     responsible: "",
-    created_at: new Date().toISOString().split("T")[0],
-    updated_at: new Date().toISOString().split("T")[0],
-    author: "Текущий пользователь",
   });
 
   useEffect(() => {
-    if (initialData) {
+    if (
+      initialData &&
+      priorities.length &&
+      statuses.length &&
+      responsible.length
+    ) {
+      const getIdByName = (list, name, key = "name") =>
+        list.find((item) => item[key] === name)?.id || "";
+
       setFormData({
         ...initialData,
-        end_date: new Date(initialData.end_date).toISOString().split("T")[0],
-        created_at: new Date(initialData.created_at)
-          .toISOString()
-          .split("T")[0],
-        updated_at: new Date(initialData.updated_at)
-          .toISOString()
-          .split("T")[0],
-      });
-    } else {
-      setFormData({
-        title: "",
-        description: "",
-        end_date: "",
-        priority: "",
-        status: "",
-        responsible: "",
-        created_at: new Date().toISOString().split("T")[0],
-        updated_at: new Date().toISOString().split("T")[0],
-        author: "Текущий пользователь",
+        priority: getIdByName(priorities, initialData.priority),
+        status: getIdByName(statuses, initialData.status),
+        responsible: getIdByName(
+          responsible,
+          initialData.responsible,
+          "responsible"
+        ),
       });
     }
-  }, [initialData]);
+  }, [initialData, priorities, statuses, responsible]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-      ...(initialData && {
-        updated_at: new Date().toISOString().split("T")[0],
-      }),
     }));
   };
 
-  const handleSubmit = () => {
-    const resultData = {
-      ...formData,
-      ...(!initialData && {
-        created_at: new Date().toISOString(),
-        author: "Текущий пользователь",
-      }),
-      ...(initialData && { updated_at: new Date().toISOString() }),
-    };
+  const handleSubmit = async () => {
+    try {
+      const dataToSend = {
+        title: formData.title,
+        description: formData.description,
+        end_date: formatDate(formData.end_date),
+        priority_id: formData.priority,
+        status_id: formData.status,
+        responsible_id: formData.responsible,
+      };
 
-    console.log("Отправленные данные:", resultData);
-    onClose();
+      if (initialData) {
+        await updateTask(initialData.id, dataToSend);
+      } else {
+        await createTask(dataToSend);
+      }
+      window.location.reload();
+      onClose();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -82,101 +83,14 @@ export default function FormTask({ open, onClose, initialData }) {
         {initialData ? "Редактировать задачу" : "Создать задачу"}
       </DialogTitle>
       <DialogContent>
-        <TextField
-          fullWidth
-          margin="dense"
-          label="Заголовок"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          required
+        <FormTaskField
+          formData={formData}
+          handleChange={handleChange}
+          statuses={statuses}
+          priorities={priorities}
+          responsible={responsible}
+          isEditing={initialData}
         />
-        <TextField
-          fullWidth
-          margin="dense"
-          label="Описание"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          multiline
-          rows={4}
-        />
-        <TextField
-          fullWidth
-          margin="dense"
-          label="Дата окончания"
-          name="end_date"
-          type="date"
-          value={formData.end_date}
-          onChange={handleChange}
-          InputLabelProps={{ shrink: true }}
-        />
-        <TextField
-          select
-          fullWidth
-          margin="dense"
-          label="Приоритет"
-          name="priority"
-          value={formData.priority}
-          onChange={handleChange}
-        >
-          {priorities.map((option) => (
-            <MenuItem key={option.id} value={option.id}>
-              {option.name}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          select
-          fullWidth
-          margin="dense"
-          label="Статус"
-          name="status"
-          value={formData.status}
-          onChange={handleChange}
-        >
-          {statuses.map((option) => (
-            <MenuItem key={option.id} value={option.id}>
-              {option.name}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          select
-          fullWidth
-          margin="dense"
-          label="Ответственный"
-          name="responsible"
-          value={formData.responsible}
-          onChange={handleChange}
-        >
-          {responsible.map((option) => (
-            <MenuItem key={option.id} value={option.id}>
-              {option.responsible}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        {initialData && (
-          <>
-            <TextField
-              fullWidth
-              margin="dense"
-              label="Дата последнего обновления"
-              value={formData.updated_at}
-              InputProps={{ readOnly: true }}
-              InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              fullWidth
-              margin="dense"
-              label="Дата создания"
-              value={formData.created_at}
-              InputProps={{ readOnly: true }}
-              InputLabelProps={{ shrink: true }}
-            />
-          </>
-        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Отмена</Button>

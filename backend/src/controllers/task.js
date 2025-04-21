@@ -30,7 +30,7 @@ const getTasks = async (req, res) => {
         `,
         [userId]
       );
-      
+
       const grouped = rows.reduce((acc, task) => {
         const name = task.responsible || "Не назначен";
         if (!acc[name]) acc[name] = [];
@@ -99,7 +99,6 @@ const getTasks = async (req, res) => {
     res.status(500).json({ message: "Ошибка сервера" });
   }
 };
-
 
 const getTaskById = async (req, res) => {
   try {
@@ -195,31 +194,18 @@ const updateTask = async (req, res) => {
       return res.json({ message: "Статус задачи обновлён" });
     }
 
-    const [currentTask] = await connection.query(
-      "SELECT title, description, end_date, priority_id, status_id, responsible_id FROM tasks WHERE id = ?",
-      [req.params.id]
-    );
-
-    const updatedTitle = title ?? currentTask[0].title;
-    const updatedDescription = description ?? currentTask[0].description;
-    const updatedEndDate = end_date ?? currentTask[0].end_date;
-    const updatedPriorityId = priority_id ?? currentTask[0].priority_id;
-    const updatedStatusId = status_id ?? currentTask[0].status_id;
-    const updatedResponsibleId =
-      responsible_id ?? currentTask[0].responsible_id;
-
     await connection.query(
       `UPDATE tasks 
-       SET title = ?, description = ?, end_date = ?, priority_id = ?, 
-           status_id = ?, responsible_id = ?, updated_at = NOW() 
-       WHERE id = ?`,
+         SET title = ?, description = ?, end_date = ?, priority_id = ?, 
+             status_id = ?, responsible_id = ?, updated_at = NOW() 
+         WHERE id = ?`,
       [
-        updatedTitle,
-        updatedDescription,
-        updatedEndDate,
-        updatedPriorityId,
-        updatedStatusId,
-        updatedResponsibleId,
+        title,
+        description,
+        end_date,
+        priority_id,
+        status_id,
+        responsible_id,
         req.params.id,
       ]
     );
