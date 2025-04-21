@@ -35,12 +35,7 @@ export default function FormTask({ open, onClose, initialData }) {
   const isNotAuthor = initialData ? initialData.author_id !== userId : false;
 
   useEffect(() => {
-    if (
-      initialData &&
-      priorities.length &&
-      statuses.length &&
-      responsible.length
-    ) {
+    if (initialData) {
       const getIdByName = (list, name, key = "name") =>
         list.find((item) => item[key] === name)?.id || "";
 
@@ -77,7 +72,7 @@ export default function FormTask({ open, onClose, initialData }) {
         status_id: formData.status,
         responsible_id: formData.responsible,
       };
-
+      console.log(dataToSend);
       if (initialData) {
         const response = await updateTask(initialData.id, dataToSend);
         if (response.status === 200) {
@@ -129,16 +124,18 @@ export default function FormTask({ open, onClose, initialData }) {
           isNotAuthor={isNotAuthor}
         />
       </DialogContent>
-      <DialogActions sx={{ justifyContent: "space-between" }}>
-        {initialData && !isNotAuthor && (
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={() => handleDelete(initialData.id)} 
-          >
-            Удалить
-          </Button>
-        )}
+      <DialogActions sx={{ display: "flex", justifyContent: "space-between" }}>
+        <div>
+          {initialData && !isNotAuthor && (
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={() => handleDelete(initialData.id)}
+            >
+              Удалить
+            </Button>
+          )}
+        </div>
         <div>
           <Button onClick={onClose}>Отмена</Button>
           <Button onClick={handleSubmit} variant="contained" color="primary">

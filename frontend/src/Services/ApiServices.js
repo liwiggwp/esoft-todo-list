@@ -63,7 +63,7 @@ export default function ApiServices() {
   const createTask = async (data) => {
     try {
       const response = await post("/tasks", data);
-      return response.data;
+      return response;
     } catch (error) {
       console.error(error);
       throw error;

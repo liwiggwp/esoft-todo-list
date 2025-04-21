@@ -7,14 +7,25 @@ const getSubordinatesUsers = async (req, res) => {
     const [subordinates] = await connection.query(
       `
       SELECT 
-        id, 
-        CONCAT(first_name, ' ', last_name) AS responsible 
-      FROM users 
+        id,
+        CONCAT(first_name, ' ', last_name) AS responsible
+      FROM users
       WHERE manager_id = ?`,
       [userId]
     );
 
-    res.json(subordinates);
+    const [currentUser] = await connection.query(
+      `
+      SELECT 
+        id,
+        CONCAT(first_name, ' ', last_name) AS responsible
+        FROM users
+        WHERE id = ?`,
+      [userId]
+    );
+    const sub = [...currentUser, ...subordinates];
+
+    res.json(sub);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Ошибка сервера" });
