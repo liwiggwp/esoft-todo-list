@@ -11,12 +11,6 @@ export default function ApiServices() {
   const [priorities, setPriorities] = useState([]);
   const [responsible, setResponsible] = useState([]);
 
-  const handleUnauthorized = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/auth/login");
-  };
-
   const getToken = () => {
     return localStorage.getItem("token");
   };
@@ -44,9 +38,6 @@ export default function ApiServices() {
       setTasks(response.data);
       return response;
     } catch (error) {
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        handleUnauthorized();
-      }
       throw error;
     }
   };
@@ -152,11 +143,13 @@ export default function ApiServices() {
   };
 
   useEffect(() => {
-    getTasks();
-    getStatuses();
-    getPriorities();
-    getSubordinatesUsers();
-  }, []);
+    if (token) {
+      getTasks();
+      getStatuses();
+      getPriorities();
+      getSubordinatesUsers();
+    }
+  }, [token]);
 
   return {
     setToken: saveToken,

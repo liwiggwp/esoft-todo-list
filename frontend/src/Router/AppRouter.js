@@ -1,6 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-import * as Router from "./RouteNames";
+import PrivateRoute from "./PrivateRoute";
 import Home from "../Pages/Home";
 import LoginForm from "../Components/auth/LoginForm";
 import RegisterForm from "../Components/auth/RegisterForm";
@@ -8,9 +8,16 @@ import RegisterForm from "../Components/auth/RegisterForm";
 function AppRouter() {
   return (
     <Routes>
-      <Route path={Router.HOME} element={<Home />} />
-      <Route path={Router.AUTH + Router.LOGIN} element={<LoginForm />} />
-      <Route path={Router.AUTH + Router.REGISTER} element={<RegisterForm />} />
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <Home />
+          </PrivateRoute>
+        }
+      />
+      <Route path="/auth/login" element={<LoginForm />} />
+      <Route path="/auth/register" element={<RegisterForm />} />
     </Routes>
   );
 }
