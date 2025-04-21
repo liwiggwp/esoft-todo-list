@@ -23,6 +23,9 @@ export default function FormTask({ open, onClose, initialData }) {
     responsible: "",
   });
 
+  const userId = JSON.parse(localStorage.getItem("user")).id;
+  const isNotAuthor = initialData ? initialData.author_id !== userId : false;
+
   useEffect(() => {
     if (
       initialData &&
@@ -76,9 +79,13 @@ export default function FormTask({ open, onClose, initialData }) {
           setError(response.data.message);
         }
       } else {
-        await createTask(dataToSend);
-        window.location.reload();
-        onClose();
+        const response = await createTask(dataToSend);
+        if (response.status === 200) {
+          window.location.reload();
+          onClose();
+        } else {
+          setError(response.data.message);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -93,7 +100,7 @@ export default function FormTask({ open, onClose, initialData }) {
       </DialogTitle>
       <DialogContent>
         {error && (
-          <Typography color="error" variant="body2" sx={{ mt: 1,mb:1 }}>
+          <Typography color="error" variant="body2" sx={{ mt: 1, mb: 1 }}>
             {error}
           </Typography>
         )}
@@ -104,6 +111,7 @@ export default function FormTask({ open, onClose, initialData }) {
           priorities={priorities}
           responsible={responsible}
           isEditing={initialData}
+          isNotAuthor={isNotAuthor}
         />
       </DialogContent>
       <DialogActions>

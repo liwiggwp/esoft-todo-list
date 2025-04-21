@@ -8,6 +8,7 @@ export default function TaskFormFields({
   priorities,
   responsible,
   isEditing,
+  isNotAuthor,
 }) {
   return (
     <>
@@ -18,6 +19,7 @@ export default function TaskFormFields({
         name="title"
         value={formData.title}
         onChange={handleChange}
+        disabled={isNotAuthor}
         required
       />
       <TextField
@@ -27,6 +29,7 @@ export default function TaskFormFields({
         name="description"
         value={formData.description}
         onChange={handleChange}
+        disabled={isNotAuthor}
         multiline
         rows={4}
       />
@@ -38,6 +41,7 @@ export default function TaskFormFields({
         type="datetime-local"
         value={formatDate(formData.end_date)}
         onChange={handleChange}
+        disabled={isNotAuthor}
         InputLabelProps={{ shrink: true }}
       />
       <TextField
@@ -47,6 +51,7 @@ export default function TaskFormFields({
         label="Приоритет"
         name="priority"
         value={formData.priority}
+        disabled={isNotAuthor}
         onChange={handleChange}
       >
         {priorities.map((option) => (

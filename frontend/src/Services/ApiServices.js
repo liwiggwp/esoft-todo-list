@@ -42,7 +42,7 @@ export default function ApiServices() {
       const queryParam = groupBy ? `?groupBy=${groupBy}` : "";
       const response = await get(`/tasks${queryParam}`);
       setTasks(response.data);
-      return response.data;
+      return response;
     } catch (error) {
       if (error.response?.status === 401 || error.response?.status === 403) {
         handleUnauthorized();
@@ -73,7 +73,7 @@ export default function ApiServices() {
   const updateTask = async (id, data) => {
     try {
       const response = await put(`/tasks/${id}`, data);
-      return response.data;
+      return response;
     } catch (error) {
       console.error(error);
       throw error;

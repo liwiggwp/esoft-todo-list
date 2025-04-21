@@ -82,7 +82,7 @@ export default function CardTask({ task }) {
             </Grid>
             <Grid item xs={12}>
               <Button variant="outlined" color="primary" onClick={handleEdit}>
-                Редактировать
+                Открыть
               </Button>
             </Grid>
           </Grid>
