@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Typography,
 } from "@mui/material";
 import FormTaskField from "./FormTaskField";
 import ApiServices from "../../Services/ApiServices";
@@ -53,8 +54,9 @@ export default function FormTask({ open, onClose, initialData }) {
       [name]: value,
     }));
   };
-
+  const [error, setError] = useState("");
   const handleSubmit = async () => {
+    setError("");
     try {
       const dataToSend = {
         title: formData.title,
@@ -66,14 +68,21 @@ export default function FormTask({ open, onClose, initialData }) {
       };
 
       if (initialData) {
-        await updateTask(initialData.id, dataToSend);
+        const response = await updateTask(initialData.id, dataToSend);
+        if (response.status === 200) {
+          window.location.reload();
+          onClose();
+        } else {
+          setError(response.data.message);
+        }
       } else {
         await createTask(dataToSend);
+        window.location.reload();
+        onClose();
       }
-      window.location.reload();
-      onClose();
     } catch (error) {
       console.error(error);
+      setError(error.response?.data?.message );
     }
   };
 
@@ -83,6 +92,11 @@ export default function FormTask({ open, onClose, initialData }) {
         {initialData ? "Редактировать задачу" : "Создать задачу"}
       </DialogTitle>
       <DialogContent>
+        {error && (
+          <Typography color="error" variant="body2" sx={{ mt: 1,mb:1 }}>
+            {error}
+          </Typography>
+        )}
         <FormTaskField
           formData={formData}
           handleChange={handleChange}

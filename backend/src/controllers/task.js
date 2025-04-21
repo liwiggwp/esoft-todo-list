@@ -177,11 +177,11 @@ const updateTask = async (req, res) => {
       );
 
       if (subordinate.length === 0) {
-        return res.json({ message: "Вы не можете обновлять эту задачу" });
+        return res.status(403).json({ message: "Вы не можете обновлять эту задачу" });
       }
 
       if (status_id === undefined) {
-        return res.json({
+        return res.status(400).json({
           message: "Вы можете изменять только статус задачи",
         });
       }
@@ -191,7 +191,7 @@ const updateTask = async (req, res) => {
         [status_id, req.params.id]
       );
 
-      return res.json({ message: "Статус задачи обновлён" });
+      return res.status(200).json({ message: "Статус задачи обновлён" });
     }
 
     await connection.query(
