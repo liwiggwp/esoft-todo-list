@@ -30,7 +30,7 @@ export default function Home() {
       setTypeGroup(typeGroup);
       if (typeGroup === "date") fetchTasks("date");
       if (typeGroup === "responsible") fetchTasks("responsible");
-      if (typeGroup === "all") fetchTasks();
+      if (typeGroup === "all") fetchTasks("all");
     }
   };
   useEffect(() => {
