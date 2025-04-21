@@ -13,6 +13,7 @@ const getTasks = async (req, res) => {
           t.title,
           t.description,
           t.end_date,
+          t.author_id,
           t.created_at,
           t.updated_at,
           p.name AS priority,
@@ -25,7 +26,7 @@ const getTasks = async (req, res) => {
         LEFT JOIN statuses s ON t.status_id = s.id
         LEFT JOIN users a ON t.author_id = a.id
         LEFT JOIN users r ON t.responsible_id = r.id
-        WHERE (r.manager_id = ? OR t.responsible_id IS NULL)
+        WHERE r.manager_id = ?
         ORDER BY t.updated_at DESC
         `,
         [userId]
@@ -49,6 +50,7 @@ const getTasks = async (req, res) => {
           t.title,
           t.description,
           t.end_date,
+          t.author_id,
           t.created_at,
           t.updated_at,
           p.name AS priority,
@@ -60,10 +62,10 @@ const getTasks = async (req, res) => {
         LEFT JOIN statuses s ON t.status_id = s.id
         LEFT JOIN users a ON t.author_id = a.id
         LEFT JOIN users r ON t.responsible_id = r.id
-        WHERE t.author_id = ? OR t.responsible_id = ?
+        WHERE t.responsible_id = ?
         ORDER BY t.updated_at DESC
         `,
-        [userId, userId]
+        [userId]
       );
 
       return res.json(rows);
@@ -76,6 +78,7 @@ const getTasks = async (req, res) => {
         t.title,
         t.description,
         t.end_date,
+        t.author_id,
         t.created_at,
         t.updated_at,
         p.name AS priority,
@@ -177,7 +180,9 @@ const updateTask = async (req, res) => {
       );
 
       if (subordinate.length === 0) {
-        return res.status(403).json({ message: "Вы не можете обновлять эту задачу" });
+        return res
+          .status(403)
+          .json({ message: "Вы не можете обновлять эту задачу" });
       }
 
       if (status_id === undefined) {
@@ -210,7 +215,7 @@ const updateTask = async (req, res) => {
       ]
     );
 
-    res.json({ message: "Задача обновлена" });
+    res.status(200).json({ message: "Задача обновлена" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Ошибка сервера" });
