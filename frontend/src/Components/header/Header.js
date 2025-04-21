@@ -1,9 +1,15 @@
 import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import { Button, Container, Menu, MenuItem } from "@mui/material";
+import {
+  Button,
+  Container,
+  Menu,
+  MenuItem,
+  Typography,
+  Toolbar,
+  Box,
+  AppBar,
+  Avatar,
+} from "@mui/material";
 import Api from "../../Services/ApiServices";
 
 export default function Header({ onFormOpen }) {
@@ -36,15 +42,12 @@ export default function Header({ onFormOpen }) {
             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               {user && (
                 <>
-                  <Typography
-                    sx={{ cursor: "pointer" }}
-                    onClick={handleMenuOpen}
-                  >
-                    {user.username}
-                  </Typography>
+                  <Avatar sx={{ cursor: "pointer" }} onClick={handleMenuOpen}>
+                    {user.username.charAt(0).toUpperCase()}
+                  </Avatar>
                   <Menu
                     anchorEl={anchorEl}
-                    open={anchorEl}
+                    open={Boolean(anchorEl)}
                     onClose={handleMenuClose}
                   >
                     <MenuItem onClick={handleLogout}>Выйти</MenuItem>
