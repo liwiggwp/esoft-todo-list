@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogTitle,
@@ -12,8 +13,15 @@ import ApiServices from "../../Services/ApiServices";
 import { formatDate } from "../../Utils/DateFormat";
 
 export default function FormTask({ open, onClose, initialData }) {
-  const { createTask, updateTask, statuses, priorities, responsible } =
-    ApiServices();
+  const navigate = useNavigate();
+  const {
+    createTask,
+    updateTask,
+    deleteTask,
+    statuses,
+    priorities,
+    responsible,
+  } = ApiServices();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -89,10 +97,17 @@ export default function FormTask({ open, onClose, initialData }) {
       }
     } catch (error) {
       console.error(error);
-      setError(error.response?.data?.message );
+      setError(error.response?.data?.message);
     }
   };
-
+  const handleDelete = async (id) => {
+    try {
+      await deleteTask(id);
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>
@@ -114,11 +129,22 @@ export default function FormTask({ open, onClose, initialData }) {
           isNotAuthor={isNotAuthor}
         />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Отмена</Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
-          {initialData ? "Обновить" : "Создать"}
-        </Button>
+      <DialogActions sx={{ justifyContent: "space-between" }}>
+        {initialData && !isNotAuthor && (
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => handleDelete(initialData.id)} 
+          >
+            Удалить
+          </Button>
+        )}
+        <div>
+          <Button onClick={onClose}>Отмена</Button>
+          <Button onClick={handleSubmit} variant="contained" color="primary">
+            {initialData ? "Обновить" : "Создать"}
+          </Button>
+        </div>
       </DialogActions>
     </Dialog>
   );
