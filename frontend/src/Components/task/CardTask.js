@@ -80,7 +80,7 @@ export default function CardTask({ task }) {
                 color={statusColor(task.status)}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item sx={{ ml: "auto" }}>
               <Button variant="outlined" color="primary" onClick={handleEdit}>
                 Открыть
               </Button>
