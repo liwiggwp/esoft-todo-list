@@ -14,9 +14,8 @@ app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/", statusPriorityRoutes);
 
-const PORT = process.env.PORT;
-const HOST = process.env.HOST;
+const BACK_HOST = process.env.BACK_HOST;
 
-app.listen(PORT, HOST, () => {
-  console.log(`Сервер запущен на http://${HOST}:${PORT}`);
+app.listen(BACK_HOST, () => {
+  console.log(`Сервер запущен на http://${BACK_HOST}`);
 });
