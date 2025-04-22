@@ -8,13 +8,15 @@ const cors = require("cors");
 const app = express();
 
 app.use(express.json());
-app.use(cors())
+app.use(cors());
 app.use("/tasks", taskRoutes);
 app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/", statusPriorityRoutes);
 
-const PORT = 5000;
-app.listen(PORT, () => {
-  console.log(`Сервер запущен на http://localhost:${PORT}`);
+const PORT = process.env.PORT;
+const HOST = process.env.HOST;
+
+app.listen(PORT, HOST, () => {
+  console.log(`Сервер запущен на http://${HOST}:${PORT}`);
 });
